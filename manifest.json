@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "TEAM LUVEX — Cookie Injector Pro",
-  "version": "5.0.0",
+  "name": "LUVEX INJECTOR — Cookie Injector Pro",
+  "version": "5.0.1",
   "description": "Import cookies automatically — supports JSON, Header, Netscape formats.",
   "permissions": [
     "activeTab",
@@ -28,7 +28,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "TEAM LUVEX — Cookie Injector Pro",
+    "default_title": "LUVEX INJECTOR — Cookie Injector Pro",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

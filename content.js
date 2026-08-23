@@ -1,6 +1,6 @@
-// TEAM LUVEX — Cookie Injector Pro Content Script
+// LUVEX INJECTOR — Content Script
 
-console.log('🍪 TEAM LUVEX Cookie Injector Pro content script loaded');
+console.log('🍪 LUVEX INJECTOR content script loaded');
 
 function injectBadge() {
   const body = document.body;
@@ -9,12 +9,12 @@ function injectBadge() {
     return;
   }
 
-  if (document.getElementById('team-luvex-badge')) {
+  if (document.getElementById('luvex-injector-badge')) {
     return;
   }
 
   const badge = document.createElement('div');
-  badge.id = 'team-luvex-badge';
+  badge.id = 'luvex-injector-badge';
   badge.style.cssText = `
     position: fixed;
     bottom: 20px;
@@ -32,7 +32,7 @@ function injectBadge() {
     transition: opacity 0.3s ease;
   `;
 
-  badge.innerHTML = '🍪 TEAM <span style="background: linear-gradient(135deg, #f7971e, #ffd200); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">LUVEX</span>';
+  badge.innerHTML = '🍪 LUVEX <span style="background: linear-gradient(135deg, #f7971e, #ffd200); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">INJECTOR</span>';
   document.body.appendChild(badge);
 
   badge.addEventListener('mouseenter', () => {
@@ -49,4 +49,4 @@ if (document.readyState === 'loading') {
   injectBadge();
 }
 
-console.log('🍪 TEAM LUVEX Cookie Injector Pro content script ready');
+console.log('🍪 LUVEX INJECTOR content script ready');

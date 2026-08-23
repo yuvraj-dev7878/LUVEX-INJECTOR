@@ -1,4 +1,4 @@
-// ─── TEAM LUVEX — Cookie Injector Pro ───
+// ─── TEAM LUVEX — Cookie Injector Pro (Auto-Detect) ───
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🍪 TEAM LUVEX Cookie Injector Pro loaded');
@@ -19,41 +19,11 @@ document.addEventListener('DOMContentLoaded', function() {
   const pasteBtn = document.getElementById('pasteBtn');
   const confirmImportBtn = document.getElementById('confirmImportBtn');
   const notification = document.getElementById('notification');
-  const formatHint = document.getElementById('formatHint');
   const formatLabel = document.getElementById('formatLabel');
-  const formatExample = document.getElementById('formatExample');
+  const formatCount = document.getElementById('formatCount');
 
   let currentTabUrl = '';
   let currentCookies = [];
-  let selectedFormat = 'json';
-
-  const formatExamples = {
-    'json': `[{"name":"cookie","value":"text"}]`,
-    'header': `cookie=text; editor=yes`,
-    'netscape': `# Netscape HTTP Cookie File\n.domain.com\tTRUE\t/\tFALSE\t1735689600\tcookie_name\tcookie_value`
-  };
-
-  // ─── FORMAT SELECTOR ───
-  document.querySelectorAll('.format-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      selectedFormat = this.dataset.format;
-      formatLabel.textContent = selectedFormat.toUpperCase();
-      formatExample.textContent = formatExamples[selectedFormat] || '';
-      updatePlaceholder();
-    });
-  });
-
-  function updatePlaceholder() {
-    const placeholders = {
-      'json': 'Paste JSON cookies here...\n[{"name":"cookie","value":"text"}]',
-      'header': 'Paste Header string here...\ncookie=text; editor=yes',
-      'netscape': 'Paste Netscape cookies here...\n.domain.com\tTRUE\t/\tFALSE\t1735689600\tcookie\tvalue'
-    };
-    cookieInput.placeholder = placeholders[selectedFormat] || '';
-  }
-  updatePlaceholder();
 
   // ─── SHOW NOTIFICATION ───
   function showNotification(message, type = 'info') {
@@ -84,74 +54,83 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // ─── PARSE COOKIES ───
-  function parseCookies(text, format) {
+  // ═══════════════════════════════════════════════════════════════
+  //  AUTO-DETECT COOKIE FORMAT
+  // ═══════════════════════════════════════════════════════════════
+
+  function detectFormatAndParse(text) {
     text = text.trim();
-    if (!text) return [];
+    if (!text) return { format: 'none', cookies: [] };
 
-    switch(format) {
-      case 'json':
-        try {
-          const parsed = JSON.parse(text);
-          if (Array.isArray(parsed)) {
-            return parsed.filter(c => c.name && c.value);
-          }
-          return [];
-        } catch (e) {
-          return [];
-        }
+    // ─── Try JSON ───
+    try {
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].name && parsed[0].value) {
+        return { format: 'JSON', cookies: parsed };
+      }
+    } catch (e) {}
 
-      case 'header':
-        return text.split(';')
-          .map(s => s.trim())
-          .filter(s => s.includes('='))
-          .map(s => {
-            const eq = s.indexOf('=');
-            return { name: s.substring(0, eq).trim(), value: s.substring(eq + 1).trim() };
-          })
-          .filter(c => c.name && c.value);
-
-      case 'netscape':
-        return parseNetscapeCookies(text);
-
-      default:
-        return [];
+    // ─── Try Netscape ───
+    const netscapeCookies = parseNetscape(text);
+    if (netscapeCookies.length > 0) {
+      return { format: 'Netscape', cookies: netscapeCookies };
     }
+
+    // ─── Try Header String ───
+    const headerCookies = parseHeader(text);
+    if (headerCookies.length > 0) {
+      return { format: 'Header', cookies: headerCookies };
+    }
+
+    return { format: 'none', cookies: [] };
   }
 
   // ─── PARSE NETSCAPE FORMAT ───
-  function parseNetscapeCookies(text) {
+  function parseNetscape(text) {
     const lines = text.split('\n');
     const cookies = [];
-    let domain = '';
-    let flag = '';
-    let path = '';
-    let secure = false;
-    let expiration = '';
-    let name = '';
-    let value = '';
-
-    for (let i = 0; i < lines.length; i++) {
-      let line = lines[i].trim();
-      if (!line || line.startsWith('#')) continue;
-
-      // Split by tab or multiple spaces
-      const parts = line.split(/\t+/);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const parts = trimmed.split(/\t+/);
       if (parts.length >= 7) {
-        const cookieData = {
+        cookies.push({
+          name: parts[5],
+          value: parts.slice(6).join('\t'),
           domain: parts[0],
-          flag: parts[1] === 'TRUE',
           path: parts[2],
           secure: parts[3] === 'TRUE',
-          expiration: parts[4],
-          name: parts[5],
-          value: parts.slice(6).join('\t')
-        };
-        cookies.push(cookieData);
+          expiration: parseInt(parts[4])
+        });
       }
     }
     return cookies;
   }
+
+  // ─── PARSE HEADER STRING ───
+  function parseHeader(text) {
+    return text.split(';')
+      .map(s => s.trim())
+      .filter(s => s.includes('='))
+      .map(s => {
+        const eq = s.indexOf('=');
+        return { name: s.substring(0, eq).trim(), value: s.substring(eq + 1).trim() };
+      })
+      .filter(c => c.name && c.value);
+  }
+
+  // ─── AUTO-DETECT ON INPUT ───
+  cookieInput.addEventListener('input', function() {
+    const text = this.value;
+    const result = detectFormatAndParse(text);
+    if (result.format === 'none') {
+      formatLabel.textContent = '—';
+      formatCount.textContent = '0 cookies found';
+    } else {
+      formatLabel.textContent = result.format;
+      formatCount.textContent = result.cookies.length + ' cookies found';
+    }
+  });
 
   // ─── LOAD COOKIES ───
   async function loadCookies() {
@@ -256,29 +235,28 @@ document.addEventListener('DOMContentLoaded', function() {
       const urlObj = new URL(tabInfo.url);
       const domain = urlObj.hostname;
 
-      // Parse based on format
-      const cookieList = parseCookies(cookieString, selectedFormat);
-      if (cookieList.length === 0) {
-        showNotification('❌ No valid cookies found in this format', 'error');
+      // Auto-detect format
+      const result = detectFormatAndParse(cookieString);
+      if (result.cookies.length === 0) {
+        showNotification('❌ No valid cookies found. Check format.', 'error');
         return;
       }
 
       let imported = 0;
-      cookieList.forEach(cookieData => {
-        const cookieName = cookieData.name;
-        const cookieValue = cookieData.value;
-        if (!cookieName || !cookieValue) return;
+      result.cookies.forEach(cookieData => {
+        const name = cookieData.name;
+        const value = cookieData.value;
+        if (!name || !value) return;
 
-        // Handle Netscape format fields
         const cookieDomain = cookieData.domain || domain;
         const cookiePath = cookieData.path || '/';
         const cookieSecure = cookieData.secure || false;
-        const cookieExpiration = cookieData.expiration ? parseInt(cookieData.expiration) : (Date.now() / 1000) + 60 * 60 * 24 * 30;
+        const cookieExpiration = cookieData.expiration || (Date.now() / 1000) + 60 * 60 * 24 * 30;
 
         chrome.cookies.set({
           url: tabInfo.url,
-          name: cookieName,
-          value: cookieValue,
+          name: name,
+          value: value,
           domain: cookieDomain,
           path: cookiePath,
           secure: cookieSecure,
@@ -291,8 +269,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
           }
           imported++;
-          if (imported === cookieList.length) {
-            showNotification(`✅ Imported ${imported} cookies`, 'success');
+          if (imported === result.cookies.length) {
+            showNotification(`✅ Imported ${imported} cookies (${result.format})`, 'success');
             loadCookies();
             closeImportBox();
           }
@@ -305,6 +283,9 @@ document.addEventListener('DOMContentLoaded', function() {
   function toggleImportBox(show) {
     if (show) {
       importBox.classList.add('open');
+      cookieInput.value = '';
+      formatLabel.textContent = '—';
+      formatCount.textContent = '0 cookies found';
     } else {
       importBox.classList.remove('open');
     }
@@ -313,6 +294,8 @@ document.addEventListener('DOMContentLoaded', function() {
   function closeImportBox() {
     importBox.classList.remove('open');
     cookieInput.value = '';
+    formatLabel.textContent = '—';
+    formatCount.textContent = '0 cookies found';
   }
 
   // ─── PASTE FROM CLIPBOARD ───
@@ -320,6 +303,12 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       const text = await navigator.clipboard.readText();
       cookieInput.value = text;
+      // Trigger detection
+      const result = detectFormatAndParse(text);
+      if (result.format !== 'none') {
+        formatLabel.textContent = result.format;
+        formatCount.textContent = result.cookies.length + ' cookies found';
+      }
       showNotification('📋 Pasted from clipboard', 'success');
     } catch (error) {
       showNotification('❌ Failed to read clipboard', 'error');
@@ -376,5 +365,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  console.log('🍪 TEAM LUVEX Cookie Injector Pro ready');
+  console.log('🍪 TEAM LUVEX Cookie Injector Pro ready (Auto-Detect)');
 });

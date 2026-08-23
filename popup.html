@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEAM LUVEX — Cookie Injector</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+
+    <!-- ─── HEADER ─── -->
+    <div class="header">
+      <div class="brand">
+        <span class="logo">🍪</span>
+        <span class="brand-name">TEAM <span class="highlight">LUVEX</span></span>
+      </div>
+      <div class="badge" id="statusBadge">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">Ready</span>
+      </div>
+    </div>
+
+    <!-- ─── WEBSITE INFO ─── -->
+    <div class="site-info" id="siteInfo">
+      <span class="site-icon">🌐</span>
+      <span class="site-name" id="siteName">No website detected</span>
+      <span class="site-status" id="siteStatus">—</span>
+    </div>
+
+    <!-- ─── COOKIE COUNT ─── -->
+    <div class="cookie-count" id="cookieCount">
+      <span class="count-number" id="countNumber">0</span>
+      <span class="count-label">Cookies Found</span>
+    </div>
+
+    <!-- ─── ACTIONS ─── -->
+    <div class="actions">
+      <button class="btn btn-primary" id="injectBtn">
+        <span class="btn-icon">📥</span>
+        Import Cookies
+      </button>
+      <button class="btn btn-danger" id="deleteBtn">
+        <span class="btn-icon">🗑️</span>
+        Delete All Cookies
+      </button>
+    </div>
+
+    <!-- ─── IMPORT BOX ─── -->
+    <div class="import-box" id="importBox">
+      <div class="import-header">
+        <span class="import-title">📥 Import Cookies</span>
+        <button class="close-btn" id="closeImport">✕</button>
+      </div>
+      <div class="import-body">
+        <textarea id="cookieInput" placeholder="Paste cookies here... (Format: name=value; name2=value2)"></textarea>
+        <div class="import-actions">
+          <button class="btn btn-sm btn-clipboard" id="pasteBtn">
+            📋 Paste from Clipboard
+          </button>
+          <button class="btn btn-sm btn-import" id="confirmImportBtn">
+            ✅ Import
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── COOKIE LIST ─── -->
+    <div class="cookie-list" id="cookieList">
+      <div class="list-header">
+        <span class="list-title">🍪 Active Cookies</span>
+        <span class="list-count" id="listCount">0</span>
+      </div>
+      <div id="cookieItems">
+        <div class="empty-state">
+          <span>No cookies found for this site</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── FOOTER ─── -->
+    <div class="footer">
+      <span class="footer-brand">TEAM LUVEX © 2025</span>
+      <span class="footer-version">v2.0.0</span>
+    </div>
+
+    <!-- ─── NOTIFICATIONS ─── -->
+    <div id="notification" class="notification"></div>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

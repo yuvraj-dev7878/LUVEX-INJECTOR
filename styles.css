@@ -22,7 +22,6 @@ body {
   min-height: 580px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-  position: relative;
 }
 
 /* ─── SCROLLBAR ─── */
@@ -164,42 +163,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* ─── FORMAT SELECTOR ─── */
-.format-selector {
-  display: flex;
-  gap: 0;
-  margin-bottom: 12px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.04);
-  overflow: hidden;
-}
-
-.format-btn {
-  flex: 1;
-  padding: 8px 4px;
-  background: transparent;
-  border: none;
-  color: rgba(255,255,255,0.3);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: inherit;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.format-btn:hover {
-  color: rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.02);
-}
-
-.format-btn.active {
-  color: #ffd200;
-  background: rgba(247, 151, 30, 0.08);
-  border-bottom: 2px solid #f7971e;
-}
-
 /* ─── ACTIONS ─── */
 .actions {
   display: flex;
@@ -327,23 +290,21 @@ body {
   color: rgba(255,255,255,0.1);
 }
 
-.format-hint {
+.detected-format {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 6px 0;
   font-size: 11px;
+  color: rgba(255,255,255,0.3);
+}
+
+.detected-format strong {
+  color: rgba(255,255,255,0.5);
+}
+
+.detected-format #formatCount {
   color: rgba(255,255,255,0.2);
-}
-
-.format-hint strong {
-  color: rgba(255,255,255,0.4);
-}
-
-.format-hint #formatExample {
-  color: rgba(255,255,255,0.15);
-  font-family: 'Courier New', monospace;
-  font-size: 10px;
 }
 
 .import-actions {

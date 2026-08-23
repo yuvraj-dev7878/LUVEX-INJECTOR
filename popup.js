@@ -1,7 +1,7 @@
-// ─── TEAM LUVEX — Cookie Injector Pro (Auto-Detect) ───
+// ─── LUVEX INJECTOR — Cookie Injector Pro (Auto-Detect) ───
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🍪 TEAM LUVEX Cookie Injector Pro loaded');
+  console.log('🍪 LUVEX INJECTOR loaded');
 
   // ─── ELEMENTS ───
   const siteName = document.getElementById('siteName');
@@ -365,5 +365,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  console.log('🍪 TEAM LUVEX Cookie Injector Pro ready (Auto-Detect)');
+  console.log('🍪 LUVEX INJECTOR ready');
 });

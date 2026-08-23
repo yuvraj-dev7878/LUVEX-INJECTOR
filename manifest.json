@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TEAM LUVEX — Cookie Injector",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Manage, delete, and inject cookies with one click.",
   "permissions": [
     "activeTab",
@@ -23,7 +23,7 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "run_at": "document_start"
+      "run_at": "document_end"
     }
   ],
   "action": {

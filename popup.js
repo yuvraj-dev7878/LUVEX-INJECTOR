@@ -1,7 +1,7 @@
-// ─── TEAM LUVEX — Cookie Injector ───
+// ─── TEAM LUVEX — Cookie Injector Pro ───
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🍪 TEAM LUVEX Cookie Injector loaded');
+  console.log('🍪 TEAM LUVEX Cookie Injector Pro loaded');
 
   // ─── ELEMENTS ───
   const siteName = document.getElementById('siteName');
@@ -19,9 +19,41 @@ document.addEventListener('DOMContentLoaded', function() {
   const pasteBtn = document.getElementById('pasteBtn');
   const confirmImportBtn = document.getElementById('confirmImportBtn');
   const notification = document.getElementById('notification');
+  const formatHint = document.getElementById('formatHint');
+  const formatLabel = document.getElementById('formatLabel');
+  const formatExample = document.getElementById('formatExample');
 
   let currentTabUrl = '';
   let currentCookies = [];
+  let selectedFormat = 'json';
+
+  const formatExamples = {
+    'json': `[{"name":"cookie","value":"text"}]`,
+    'header': `cookie=text; editor=yes`,
+    'netscape': `# Netscape HTTP Cookie File\n.domain.com\tTRUE\t/\tFALSE\t1735689600\tcookie_name\tcookie_value`
+  };
+
+  // ─── FORMAT SELECTOR ───
+  document.querySelectorAll('.format-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      selectedFormat = this.dataset.format;
+      formatLabel.textContent = selectedFormat.toUpperCase();
+      formatExample.textContent = formatExamples[selectedFormat] || '';
+      updatePlaceholder();
+    });
+  });
+
+  function updatePlaceholder() {
+    const placeholders = {
+      'json': 'Paste JSON cookies here...\n[{"name":"cookie","value":"text"}]',
+      'header': 'Paste Header string here...\ncookie=text; editor=yes',
+      'netscape': 'Paste Netscape cookies here...\n.domain.com\tTRUE\t/\tFALSE\t1735689600\tcookie\tvalue'
+    };
+    cookieInput.placeholder = placeholders[selectedFormat] || '';
+  }
+  updatePlaceholder();
 
   // ─── SHOW NOTIFICATION ───
   function showNotification(message, type = 'info') {
@@ -50,6 +82,75 @@ document.addEventListener('DOMContentLoaded', function() {
         resolve(tabs[0] || null);
       });
     });
+  }
+
+  // ─── PARSE COOKIES ───
+  function parseCookies(text, format) {
+    text = text.trim();
+    if (!text) return [];
+
+    switch(format) {
+      case 'json':
+        try {
+          const parsed = JSON.parse(text);
+          if (Array.isArray(parsed)) {
+            return parsed.filter(c => c.name && c.value);
+          }
+          return [];
+        } catch (e) {
+          return [];
+        }
+
+      case 'header':
+        return text.split(';')
+          .map(s => s.trim())
+          .filter(s => s.includes('='))
+          .map(s => {
+            const eq = s.indexOf('=');
+            return { name: s.substring(0, eq).trim(), value: s.substring(eq + 1).trim() };
+          })
+          .filter(c => c.name && c.value);
+
+      case 'netscape':
+        return parseNetscapeCookies(text);
+
+      default:
+        return [];
+    }
+  }
+
+  // ─── PARSE NETSCAPE FORMAT ───
+  function parseNetscapeCookies(text) {
+    const lines = text.split('\n');
+    const cookies = [];
+    let domain = '';
+    let flag = '';
+    let path = '';
+    let secure = false;
+    let expiration = '';
+    let name = '';
+    let value = '';
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+      if (!line || line.startsWith('#')) continue;
+
+      // Split by tab or multiple spaces
+      const parts = line.split(/\t+/);
+      if (parts.length >= 7) {
+        const cookieData = {
+          domain: parts[0],
+          flag: parts[1] === 'TRUE',
+          path: parts[2],
+          secure: parts[3] === 'TRUE',
+          expiration: parts[4],
+          name: parts[5],
+          value: parts.slice(6).join('\t')
+        };
+        cookies.push(cookieData);
+      }
+    }
+    return cookies;
   }
 
   // ─── LOAD COOKIES ───
@@ -95,13 +196,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
         currentCookies.slice(0, 20).forEach(cookie => {
-          const isActive = true;
           const displayValue = cookie.value.length > 25 ? cookie.value.substring(0, 25) + '...' : cookie.value;
           html += `
             <div class="cookie-item">
               <span class="cookie-name" title="${cookie.name}">${cookie.name}</span>
               <span class="cookie-value" title="${cookie.value}">${displayValue}</span>
-              <span class="cookie-status ${isActive ? 'active' : 'expired'}">${isActive ? 'Active' : 'Expired'}</span>
+              <span class="cookie-status">Active</span>
             </div>
           `;
         });
@@ -156,33 +256,42 @@ document.addEventListener('DOMContentLoaded', function() {
       const urlObj = new URL(tabInfo.url);
       const domain = urlObj.hostname;
 
-      const pairs = cookieString.split(';').map(s => s.trim()).filter(s => s);
-      if (pairs.length === 0) {
-        showNotification('No valid cookies found', 'error');
+      // Parse based on format
+      const cookieList = parseCookies(cookieString, selectedFormat);
+      if (cookieList.length === 0) {
+        showNotification('❌ No valid cookies found in this format', 'error');
         return;
       }
 
       let imported = 0;
-      pairs.forEach(pair => {
-        const eqIndex = pair.indexOf('=');
-        if (eqIndex === -1) return;
-        const name = pair.substring(0, eqIndex).trim();
-        const value = pair.substring(eqIndex + 1).trim();
-        if (!name || !value) return;
+      cookieList.forEach(cookieData => {
+        const cookieName = cookieData.name;
+        const cookieValue = cookieData.value;
+        if (!cookieName || !cookieValue) return;
+
+        // Handle Netscape format fields
+        const cookieDomain = cookieData.domain || domain;
+        const cookiePath = cookieData.path || '/';
+        const cookieSecure = cookieData.secure || false;
+        const cookieExpiration = cookieData.expiration ? parseInt(cookieData.expiration) : (Date.now() / 1000) + 60 * 60 * 24 * 30;
 
         chrome.cookies.set({
           url: tabInfo.url,
-          name: name,
-          value: value,
-          domain: domain,
-          path: '/',
-          secure: false,
+          name: cookieName,
+          value: cookieValue,
+          domain: cookieDomain,
+          path: cookiePath,
+          secure: cookieSecure,
           httpOnly: false,
           sameSite: 'lax',
-          expirationDate: (Date.now() / 1000) + 60 * 60 * 24 * 30
+          expirationDate: cookieExpiration
         }, () => {
+          if (chrome.runtime.lastError) {
+            console.error('Cookie set error:', chrome.runtime.lastError);
+            return;
+          }
           imported++;
-          if (imported === pairs.length) {
+          if (imported === cookieList.length) {
             showNotification(`✅ Imported ${imported} cookies`, 'success');
             loadCookies();
             closeImportBox();
@@ -257,7 +366,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // ─── INIT ───
   loadCookies();
 
-  // Reload on tab change
   chrome.tabs.onActivated.addListener(() => {
     loadCookies();
   });
@@ -268,5 +376,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  console.log('🍪 TEAM LUVEX Cookie Injector ready');
+  console.log('🍪 TEAM LUVEX Cookie Injector Pro ready');
 });

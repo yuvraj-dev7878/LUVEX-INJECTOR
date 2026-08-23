@@ -8,7 +8,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getStatus') {
-    sendResponse({ status: 'active', version: '4.0.0' });
+    sendResponse({ status: 'active', version: '5.0.0' });
   }
   return true;
 });

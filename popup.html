@@ -34,13 +34,6 @@
       <span class="count-label">Cookies Found</span>
     </div>
 
-    <!-- ─── FORMAT SELECTOR ─── -->
-    <div class="format-selector">
-      <button class="format-btn active" data-format="json">JSON</button>
-      <button class="format-btn" data-format="header">Header</button>
-      <button class="format-btn" data-format="netscape">Netscape</button>
-    </div>
-
     <!-- ─── ACTIONS ─── -->
     <div class="actions">
       <button class="btn btn-primary" id="injectBtn">
@@ -60,10 +53,10 @@
         <button class="close-btn" id="closeImport">✕</button>
       </div>
       <div class="import-body">
-        <textarea id="cookieInput" placeholder="Paste cookies here..."></textarea>
-        <div class="format-hint" id="formatHint">
-          <span>📌 Format: <strong id="formatLabel">JSON</strong></span>
-          <span id="formatExample">[{"name":"cookie","value":"text"}]</span>
+        <textarea id="cookieInput" placeholder="Paste cookies here... (JSON, Header, or Netscape format)"></textarea>
+        <div class="detected-format" id="detectedFormat">
+          <span>🔍 Detected: <strong id="formatLabel">—</strong></span>
+          <span id="formatCount">0 cookies found</span>
         </div>
         <div class="import-actions">
           <button class="btn btn-sm btn-clipboard" id="pasteBtn">
@@ -92,7 +85,7 @@
     <!-- ─── FOOTER ─── -->
     <div class="footer">
       <span class="footer-brand">TEAM LUVEX © 2025</span>
-      <span class="footer-version">v4.0.0</span>
+      <span class="footer-version">v5.0.0</span>
     </div>
 
     <!-- ─── NOTIFICATIONS ─── -->

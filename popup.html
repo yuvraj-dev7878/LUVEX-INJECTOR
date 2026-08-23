@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TEAM LUVEX — Cookie Injector</title>
+  <title>TEAM LUVEX — Cookie Injector Pro</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -34,6 +34,13 @@
       <span class="count-label">Cookies Found</span>
     </div>
 
+    <!-- ─── FORMAT SELECTOR ─── -->
+    <div class="format-selector">
+      <button class="format-btn active" data-format="json">JSON</button>
+      <button class="format-btn" data-format="header">Header</button>
+      <button class="format-btn" data-format="netscape">Netscape</button>
+    </div>
+
     <!-- ─── ACTIONS ─── -->
     <div class="actions">
       <button class="btn btn-primary" id="injectBtn">
@@ -53,7 +60,11 @@
         <button class="close-btn" id="closeImport">✕</button>
       </div>
       <div class="import-body">
-        <textarea id="cookieInput" placeholder="Paste cookies here...&#10;Format: name=value; name2=value2"></textarea>
+        <textarea id="cookieInput" placeholder="Paste cookies here..."></textarea>
+        <div class="format-hint" id="formatHint">
+          <span>📌 Format: <strong id="formatLabel">JSON</strong></span>
+          <span id="formatExample">[{"name":"cookie","value":"text"}]</span>
+        </div>
         <div class="import-actions">
           <button class="btn btn-sm btn-clipboard" id="pasteBtn">
             📋 Paste from Clipboard
@@ -81,7 +92,7 @@
     <!-- ─── FOOTER ─── -->
     <div class="footer">
       <span class="footer-brand">TEAM LUVEX © 2025</span>
-      <span class="footer-version">v3.0.0</span>
+      <span class="footer-version">v4.0.0</span>
     </div>
 
     <!-- ─── NOTIFICATIONS ─── -->

@@ -1,15 +1,14 @@
-// TEAM LUVEX — Cookie Injector Background
+// TEAM LUVEX — Cookie Injector Pro Background
 
-console.log('🍪 TEAM LUVEX Cookie Injector Background loaded');
+console.log('🍪 TEAM LUVEX Cookie Injector Pro Background loaded');
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('🍪 TEAM LUVEX Cookie Injector installed');
+  console.log('🍪 TEAM LUVEX Cookie Injector Pro installed');
 });
 
-// Handle any messages
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getStatus') {
-    sendResponse({ status: 'active', version: '3.0.0' });
+    sendResponse({ status: 'active', version: '4.0.0' });
   }
   return true;
 });
